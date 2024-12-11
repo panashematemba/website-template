@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bar Chart</title>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+    <script>
+        const width = 800;
+        const height = 800;
+        const margin = {top: 20, right: 10, bottom: 20, left: 100};
+
+        const svg = d3.select("body")
+            .append("svg")
+            .attr("viewBox", `0 0 ${width} ${height}`)
+            .attr("width", "100%")
+            .attr("height", "100%");
+
+        
+        const g = svg.append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`); 
+
+        const scaleY = d3.scaleBand()
+            .rangeRound([margin.top, height - margin.top - margin.bottom])
+            .padding(.1)
+
+        const scaleX = d3.scaleLinear()
+            .range([0, width - margin.left - margin.right]);
+        
+        d3.csv("Movies-chart.csv").then(function (data){
+
+            console.log(data)
+
+            data = data.sort((a,b)=> d3.descending(a.Gross - b.Gross));
+
+            scaleY.domain(data.map(d => d.Name))
+            scaleX.domain([0, d3.max(data, d => d.Gross)]);
+
+
+            g.selectAll(".bar")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("x", 0)
+                .attr("y", d => scaleY(d.Name))
+                .attr("width" , d => scaleX(d.Gross))
+                .attr("height" , d => scaleY.bandwidth())
+                .attr("fill", "steelblue");
+
+            svg.append("g")
+                .attr("transform" , `translate(${margin.left}, ${height - margin.bottom})`)
+                .call(d3.axisBottom(scaleX));
+
+           
+            svg.append("g")
+                .attr("transform", `translate(${margin.left}, ${margin.top})`)
+                .call(d3.axisLeft(scaleY));
+
+            
+
+        });
+
+
+        
+
+
+
+
+
+
+    </script>
+</body>
+</html>
+
